@@ -1,0 +1,136 @@
+apply plugin: 'com.android.library'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+apply plugin: 'maven'
+
+
+uploadArchives {
+    repositories.mavenDeployer {
+        def deployPath = file(getProperty('aar.deployPath'))
+        //logger.info('An info log message.')
+        //logger.info(deployPath)
+        repository(url: "file://${deployPath.absolutePath}")
+        pom.project {
+            groupId 'com.economic'
+            artifactId 'ecmfoundation'
+            version '1.0'
+        }
+    }
+}
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+kapt {
+    generateStubs = true
+}
+
+buildscript {
+    repositories {
+        mavenCentral()
+        jcenter()
+        maven{
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+
+    ext {
+        //Kotlin
+        kotlinVersion = '1.0.0'
+
+        //Android
+        appCompatibilityLibraryVersion = '23.1.1'
+        appDesignLibraryVersion = '23.1.1'
+
+        //Third Party Libraries
+        daggerVersion = '2.0.2'
+        butterKnifeVersion = '7.0.1'
+        kotterKnifeVersion = '0.1.0-SNAPSHOT'
+        recyclerViewVersion = '21.0.3'
+        rxJavaVersion = '1.1.1'
+        retroFitVersion = '2.0.0-beta4'
+        javaxAnnotationVersion = '10.0-b28'
+        timberVersion = '4.1.1'
+
+        //Testing
+        robolectricVersion = '3.0'
+        jUnitVersion = '4.12'
+        assertJVersion = '1.7.1'
+        mockitoVersion = '1.9.5'
+
+
+        languageDependencies = [
+                kotlin:             "org.jetbrains.kotlin:kotlin-stdlib:${kotlinVersion}"
+        ]
+
+        androidDependencies = [
+                appCompatiblityLibrary: "com.android.support:appcompat-v7:${appCompatibilityLibraryVersion}",
+                appDesignLibrary:       "com.android.support:design:${appDesignLibraryVersion}"
+        ]
+
+        domainDependencies = [
+                daggerCompiler:     "com.google.dagger:dagger-compiler:${daggerVersion}",
+                dagger:             "com.google.dagger:dagger:${daggerVersion}",
+                javaxAnnotation:    "org.glassfish:javax.annotation:${javaxAnnotationVersion}",
+                rxJava:             "io.reactivex:rxjava:${rxJavaVersion}",
+                kotterKnife:        "com.jakewharton:kotterknife:${kotterKnifeVersion}",
+                retrofit:           "com.squareup.retrofit2:retrofit:${retroFitVersion}",
+                retrofitGson:       "com.squareup.retrofit2:converter-gson:${retroFitVersion}",
+                timber:             "com.jakewharton.timber:timber:${timberVersion}",
+
+        ]
+
+        domainTestDependencies = [
+                junit:              "junit:junit:${jUnitVersion}",
+                mockito:            "org.mockito:mockito-core:${mockitoVersion}",
+                assertj:            "org.assertj:assertj-core:${assertJVersion}",
+                robolectric:        "org.robolectric:robolectric:${robolectricVersion}",
+        ]
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
+    }
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+
+    //Dagger 2
+    kapt domainDependencies.daggerCompiler
+    compile domainDependencies.dagger
+
+    //Retrofit
+    compile domainDependencies.retrofit
+    compile domainDependencies.retrofitGson
+
+    //Threading
+    compile domainDependencies.rxJava
+
+    //Logging
+    compile domainDependencies.timber
+
+    //Misc
+    provided domainDependencies.javaxAnnotation
+    compile languageDependencies.kotlin
+
+    //Testing
+    testCompile domainTestDependencies.junit
+}
