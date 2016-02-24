@@ -1,53 +1,32 @@
+
+buildscript {
+    repositories {
+        jcenter()
+        mavenCentral()
+        maven{
+            url 'https://oss.sonatype.org/content/repositories/snapshots/'
+        }
+    }
+
+    dependencies {
+        classpath 'com.android.tools.build:gradle:1.5.0'
+        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
+        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:1.0.0"
+    }
+
+}
+
 apply plugin: 'com.android.library'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-android-extensions'
 apply plugin: 'maven'
-
-
-uploadArchives {
-    repositories.mavenDeployer {
-        def deployPath = file(getProperty('aar.deployPath'))
-        //logger.info('An info log message.')
-        //logger.info(deployPath)
-        repository(url: "file://${deployPath.absolutePath}")
-        pom.project {
-            groupId 'com.economic'
-            artifactId 'ecmfoundation'
-            version '1.0'
-        }
-    }
-}
-
-android {
-    compileSdkVersion 23
-    buildToolsVersion "23.0.2"
-
-    defaultConfig {
-        minSdkVersion 15
-        targetSdkVersion 23
-        versionCode 1
-        versionName "1.0"
-    }
-    buildTypes {
-        release {
-            minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
-        }
-    }
-}
+apply plugin: 'maven-publish'
 
 kapt {
     generateStubs = true
 }
 
-buildscript {
-    repositories {
-        mavenCentral()
-        jcenter()
-        maven{
-            url 'https://oss.sonatype.org/content/repositories/snapshots/'
-        }
-    }
+buildscript{
 
     ext {
         //Kotlin
@@ -103,16 +82,15 @@ buildscript {
         ]
     }
 
-    dependencies {
-        classpath 'com.android.tools.build:gradle:1.5.0'
-        classpath 'com.neenbedankt.gradle.plugins:android-apt:1.8'
-        classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlinVersion"
-    }
+
+
 }
 
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
 
+    compile "com.squareup.retrofit2:retrofit:2.0.0-beta4"
+    /*
     //Dagger 2
     kapt domainDependencies.daggerCompiler
     compile domainDependencies.dagger
@@ -133,4 +111,36 @@ dependencies {
 
     //Testing
     testCompile domainTestDependencies.junit
+    */
 }
+
+android {
+    compileSdkVersion 23
+    buildToolsVersion "23.0.2"
+
+    defaultConfig {
+        minSdkVersion 15
+        targetSdkVersion 23
+        versionCode 1
+        versionName "1.0"
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+}
+
+
+
+
+task clean(type: Delete) {
+    delete rootProject.buildDir
+}
+
+
